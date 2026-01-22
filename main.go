@@ -21,7 +21,7 @@ func (s *GreetCounter) Greet(name string) (string, error) {
 	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
-	
+
 	s.count++
 
 	fmt.Println(s.count)
@@ -48,8 +48,11 @@ func GreetHandler(g Greeter) http.HandlerFunc {
 }
 
 func healthHandler(w http.ResponseWriter, r *http.Request) {
-	w.WriteHeader(http.StatusOK)
-	fmt.Fprintln(w, "200")
+	// what i want it to do is ignore requests which have a different request method from GET
+	if r.Method == "GET" {
+		w.WriteHeader(200)
+		fmt.Fprintln(w, "status: 200 (ok)")
+	}
 }
 
 func main() {
