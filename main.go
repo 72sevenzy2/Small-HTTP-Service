@@ -20,24 +20,25 @@ func (s *GreetCounter) Greet(name string) (string, error) {
 	s.count++
 
 	fmt.Println(s.count)
-
 	return fmt.Sprintf("hello %s, greet number %d", name, s.count), nil
 }
 
 func GreetHandler(g Greeter) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == "GET" {
-			name := r.URL.Query().Get("name")
-
-			msg, err := g.Greet(name)
-
-			if err != nil {
-				http.Error(w, err.Error(), http.StatusBadRequest)
-				return
-			}
-
-			fmt.Fprintln(w, msg)
+		if r.Method != http.MethodGet {
+			http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
+			return
 		}
+		name := r.URL.Query().Get("name")
+
+		msg, err := g.Greet(name)
+
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
+		}
+
+		fmt.Fprintln(w, msg)
 	}
 }
 
