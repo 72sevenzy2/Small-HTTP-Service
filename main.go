@@ -15,30 +15,43 @@ type GreetCounter struct {
 
 func (s *GreetCounter) Greet(name string) (string, error) {
 	if name == "" {
-		return "", fmt.Errorf("name cant be empty")
+		return "", fmt.Errorf("name cannot be empty")
 	}
-
 	s.count++
-	return fmt.Sprintf("heello %s (request #%d)", name, s.count), nil
+
+	fmt.Println(s.count)
+
+	return fmt.Sprintf("hello %s, greet number %d", name, s.count), nil
 }
 
-func greetHandler(g Greeter) http.HandlerFunc {
+func GreetHandler(g Greeter) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		name := r.URL.Query().Get("coolname")
+		if r.Method == "GET" {
+			name := r.URL.Query().Get("name")
 
-		msg, err := g.Greet(name)
-		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
+			msg, err := g.Greet(name)
+
+			if err != nil {
+				http.Error(w, err.Error(), http.StatusBadRequest)
+				return
+			}
+
+			fmt.Fprintln(w, msg)
 		}
-		fmt.Fprintln(w, msg)
 	}
+}
+
+func healthHandler(w http.ResponseWriter, r *http.Request) {
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintln(w, "200")
 }
 
 func main() {
 	service := &GreetCounter{}
 
-	http.HandleFunc("/greet", greetHandler(service))
-	fmt.Println("server running on port 8080")
+	http.HandleFunc("/greet", GreetHandler(service))
+	http.HandleFunc("/health", healthHandler)
+
 	http.ListenAndServe(":8080", nil)
+	fmt.Println("port listening on 8080")
 }
