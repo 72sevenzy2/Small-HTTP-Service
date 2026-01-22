@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"sync"
 )
 
 type Greeter interface {
@@ -11,12 +12,16 @@ type Greeter interface {
 
 type GreetCounter struct {
 	count int
+	mu sync.Mutex	
 }
 
 func (s *GreetCounter) Greet(name string) (string, error) {
 	if name == "" {
 		return "", fmt.Errorf("name cannot be empty")
 	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	
 	s.count++
 
 	fmt.Println(s.count)
