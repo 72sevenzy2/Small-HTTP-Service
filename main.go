@@ -17,16 +17,15 @@ type GreetCounter struct {
 
 func (s *GreetCounter) greet(name string) (string, error) {
 	if name == "" {
-		return "", fmt.Errorf("name cannnot be empty")
+		return "", fmt.Errorf("name cannot be empty")
 	}
 
 	s.mu.Lock()
+	s.count = s.count + 1
+	count := s.count
 	defer s.mu.Unlock()
 
-	s.count = s.count + 1
-
-	fmt.Println(s.count)
-	return fmt.Sprintf("welcome back %s, greet number %d", name, s.count), nil
+	return fmt.Sprintf("welcome back %s, this is the %d request", name, count), nil
 }
 
 func greetHandler(g Greeter) http.HandlerFunc {
@@ -41,28 +40,28 @@ func greetHandler(g Greeter) http.HandlerFunc {
 		msg, err := g.greet(name)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
-			return
 		}
 
 		fmt.Fprintln(w, msg)
 	}
 }
 
-func healthHandler(w http.ResponseWriter, r *http.Request) {
+func healthChecker(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
-		http.Error(w, "invalid request method", http.StatusMethodNotAllowed);
+		http.Error(w, "invalid request", http.StatusMethodNotAllowed)
 		return;
 	}
 
-	w.WriteHeader(http.StatusOK);
-	fmt.Fprintln(w, "healthy API")
+	w.WriteHeader(http.StatusOK)
+	fmt.Fprintln(w, "fully working API")
 }
 
 func main() {
 	service := &GreetCounter{}
+
 	http.HandleFunc("/greet", greetHandler(service))
-	http.HandleFunc("/health", healthHandler)
+	http.HandleFunc("/health", healthChecker)
 
 	http.ListenAndServe(":8080", nil);
-	fmt.Println("server running on port 8080");
+	fmt.Println("API working on port 8080")
 }
