@@ -64,5 +64,8 @@ func main() {
 	http.HandleFunc("/health", healthChecker)
 
 	fmt.Println("API working on port 8080")
-	http.ListenAndServe(":8080", nil)
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		panic(err)
+	}
 }
