@@ -40,6 +40,7 @@ func greetHandler(g Greeter) http.HandlerFunc {
 		msg, err := g.greet(name)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
+			return;
 		}
 
 		fmt.Fprintln(w, msg)
