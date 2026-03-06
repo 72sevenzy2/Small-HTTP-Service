@@ -40,7 +40,7 @@ func greetHandler(g Greeter) http.HandlerFunc {
 		msg, err := g.greet(name)
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusBadRequest)
-			return;
+			return
 		}
 
 		fmt.Fprintln(w, msg)
@@ -50,7 +50,7 @@ func greetHandler(g Greeter) http.HandlerFunc {
 func healthChecker(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodGet {
 		http.Error(w, "invalid request", http.StatusMethodNotAllowed)
-		return;
+		return
 	}
 
 	w.WriteHeader(http.StatusOK)
@@ -63,6 +63,6 @@ func main() {
 	http.HandleFunc("/greet", greetHandler(service))
 	http.HandleFunc("/health", healthChecker)
 
-	http.ListenAndServe(":8080", nil);
 	fmt.Println("API working on port 8080")
+	http.ListenAndServe(":8080", nil)
 }
